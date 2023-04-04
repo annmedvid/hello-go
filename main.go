@@ -5,9 +5,11 @@ import (
     "log"
     "net/http"
     "encoding/json"
+    "github.com/gorilla/mux"
 )
 
 type Port struct {
+    Code string `json:"code"`
     Name string `json:"name"`
     City string `json:"city"`
     Country string `json:"country"`
@@ -20,21 +22,36 @@ func portsEndpoint(w http.ResponseWriter, r *http.Request){
     json.NewEncoder(w).Encode(Ports)
 }
 
+func portEndpoint(w http.ResponseWriter, r *http.Request){
+    fmt.Println("Endpoint Hit: portEndpoint")
+    vars := mux.Vars(r)
+    portCode := vars["code"]
+
+    for _, port := range Ports {
+        if port.Code == portCode {
+            json.NewEncoder(w).Encode(port)
+        }
+    }
+}
+
 func rootEndpoint(w http.ResponseWriter, r *http.Request){
     fmt.Fprintf(w, "Simple REST API for ports handling. Welcome.")
     fmt.Println("Endpoint Hit: rootEndpoint")
 }
 
 func handleRequests() {
-    http.HandleFunc("/", rootEndpoint)
-    http.HandleFunc("/ports", portsEndpoint)
-    log.Fatal(http.ListenAndServe(":10000", nil))
+    myRouter := mux.NewRouter().StrictSlash(true)
+    myRouter.HandleFunc("/", rootEndpoint)
+    myRouter.HandleFunc("/ports", portsEndpoint)
+    myRouter.HandleFunc("/port/{code}", portEndpoint)
+    log.Fatal(http.ListenAndServe(":10000", myRouter))
 }
 
 func main() {
+    fmt.Println("Ports REST API 2.0 - Mux Routers")
     Ports = []Port{
-        Port{Name: "Goya", City: "Goya", Country: "Argentina"},
-        Port{Name: "Melbourne", City: "Melbourne", Country: "Australia"},
+        Port{Code: "35700", Name: "Goya", City: "Goya", Country: "Argentina"},
+        Port{Code: "60237", Name: "Melbourne", City: "Melbourne", Country: "Australia"},
     }
     handleRequests()
 }
