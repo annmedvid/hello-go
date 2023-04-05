@@ -3,6 +3,7 @@ package main
 import (
     "fmt"
     "log"
+    "io"
     "net/http"
     "encoding/json"
     "github.com/gorilla/mux"
@@ -34,6 +35,14 @@ func portEndpoint(w http.ResponseWriter, r *http.Request){
     }
 }
 
+func createPortEndpoint(w http.ResponseWriter, r *http.Request){
+    reqBody, _ := io.ReadAll(r.Body)
+    var port Port
+    json.Unmarshal(reqBody, &port)
+    Ports = append(Ports, port)
+    json.NewEncoder(w).Encode(port)
+}
+
 func rootEndpoint(w http.ResponseWriter, r *http.Request){
     fmt.Fprintf(w, "Simple REST API for ports handling. Welcome.")
     fmt.Println("Endpoint Hit: rootEndpoint")
@@ -43,6 +52,7 @@ func handleRequests() {
     myRouter := mux.NewRouter().StrictSlash(true)
     myRouter.HandleFunc("/", rootEndpoint)
     myRouter.HandleFunc("/ports", portsEndpoint)
+    myRouter.HandleFunc("/port", createPortEndpoint).Methods("POST")
     myRouter.HandleFunc("/port/{code}", portEndpoint)
     log.Fatal(http.ListenAndServe(":10000", myRouter))
 }
