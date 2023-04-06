@@ -36,11 +36,24 @@ func portEndpoint(w http.ResponseWriter, r *http.Request){
 }
 
 func createPortEndpoint(w http.ResponseWriter, r *http.Request){
+    fmt.Println("Endpoint Hit: createPortEndpoint")
     reqBody, _ := io.ReadAll(r.Body)
     var port Port
     json.Unmarshal(reqBody, &port)
     Ports = append(Ports, port)
     json.NewEncoder(w).Encode(port)
+}
+
+func deletePortEndpoint(w http.ResponseWriter, r *http.Request){
+    fmt.Println("Endpoint Hit: deletePortEndpoint")
+    vars := mux.Vars(r)
+    portCode := vars["code"]
+
+    for index, port := range Ports {
+        if port.Code == portCode {
+            Ports = append(Ports[:index], Ports[index+1:]...)
+        }
+    }
 }
 
 func rootEndpoint(w http.ResponseWriter, r *http.Request){
@@ -53,6 +66,7 @@ func handleRequests() {
     myRouter.HandleFunc("/", rootEndpoint)
     myRouter.HandleFunc("/ports", portsEndpoint)
     myRouter.HandleFunc("/port", createPortEndpoint).Methods("POST")
+    myRouter.HandleFunc("/port/{code}", deletePortEndpoint).Methods("DELETE")
     myRouter.HandleFunc("/port/{code}", portEndpoint)
     log.Fatal(http.ListenAndServe(":10000", myRouter))
 }
