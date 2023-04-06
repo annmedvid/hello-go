@@ -4,6 +4,7 @@ import (
     "fmt"
     "log"
     "io"
+    "os"
     "net/http"
     "encoding/json"
     "github.com/gorilla/mux"
@@ -92,11 +93,15 @@ func handleRequests() {
     log.Fatal(http.ListenAndServe(":10000", myRouter))
 }
 
+func applyPortsData() {
+    fmt.Println("Open ports.json")
+    jsonFile, _ := os.Open("ports.json")
+    byteValue, _ := io.ReadAll(jsonFile)
+    json.Unmarshal(byteValue, &Ports)
+}
+
 func main() {
     fmt.Println("Ports REST API 2.0 - Mux Routers")
-    Ports = []Port{
-        Port{Code: "35700", Name: "Goya", City: "Goya", Country: "Argentina"},
-        Port{Code: "60237", Name: "Melbourne", City: "Melbourne", Country: "Australia"},
-    }
+    applyPortsData()
     handleRequests()
 }
