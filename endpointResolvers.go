@@ -1,72 +1,59 @@
 package main
 
 import (
-    "fmt"
-    "io"
-    "net/http"
-    "encoding/json"
-    "github.com/gorilla/mux"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
-func PortsEndpoint(w http.ResponseWriter, r *http.Request){
-    fmt.Println("Endpoint Hit: portsEndpoint")
-    json.NewEncoder(w).Encode(Ports)
+func PortsEndpoint(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Endpoint Hit: portsEndpoint")
+	json.NewEncoder(w).Encode(Ports)
 }
 
-func PortEndpoint(w http.ResponseWriter, r *http.Request){
-    fmt.Println("Endpoint Hit: portEndpoint")
-    vars := mux.Vars(r)
-    portCode := vars["code"]
+func PortEndpoint(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Endpoint Hit: portEndpoint")
+	vars := mux.Vars(r)
+	portId := vars["id"]
 
-    for _, port := range Ports {
-        if port.Code == portCode {
-            json.NewEncoder(w).Encode(port)
-        }
-    }
+	json.NewEncoder(w).Encode(Ports[portId])
 }
 
-func CreatePortEndpoint(w http.ResponseWriter, r *http.Request){
-    fmt.Println("Endpoint Hit: createPortEndpoint")
-    reqBody, _ := io.ReadAll(r.Body)
-    var port Port
-    json.Unmarshal(reqBody, &port)
-    Ports = append(Ports, port)
-    json.NewEncoder(w).Encode(port)
+func CreatePortEndpoint(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Endpoint Hit: createPortEndpoint")
+	reqBody, _ := io.ReadAll(r.Body)
+	var input PortInput
+	json.Unmarshal(reqBody, &input)
+	Ports[input.Id] = input.Port
+	json.NewEncoder(w).Encode(input.Port)
 }
 
-func UpdatePortEndpoint(w http.ResponseWriter, r *http.Request){
-    fmt.Println("Endpoint Hit: updatePortEndpoint")
-    vars := mux.Vars(r)
-    portCode := vars["code"]
+func UpdatePortEndpoint(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Endpoint Hit: updatePortEndpoint")
+	vars := mux.Vars(r)
+	portId := vars["id"]
 
-    reqBody, _ := io.ReadAll(r.Body)
-    var updatedPort Port
-    json.Unmarshal(reqBody, &updatedPort)
+	reqBody, _ := io.ReadAll(r.Body)
+	var updatedPort Port
+	json.Unmarshal(reqBody, &updatedPort)
 
-    for index, port := range Ports {
-        if port.Code == portCode {
-            port.Name = updatedPort.Name
-		    port.City = updatedPort.City
-		    port.Country = updatedPort.Country
-		    Ports[index] = port
-		    json.NewEncoder(w).Encode(port)
-        }
-    }
+	Ports[portId] = updatedPort
+	json.NewEncoder(w).Encode(updatedPort)
 }
 
-func DeletePortEndpoint(w http.ResponseWriter, r *http.Request){
-    fmt.Println("Endpoint Hit: deletePortEndpoint")
-    vars := mux.Vars(r)
-    portCode := vars["code"]
+func DeletePortEndpoint(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Endpoint Hit: deletePortEndpoint")
+	vars := mux.Vars(r)
+	portId := vars["id"]
 
-    for index, port := range Ports {
-        if port.Code == portCode {
-            Ports = append(Ports[:index], Ports[index+1:]...)
-        }
-    }
+	delete(Ports, portId)
+	json.NewEncoder(w).Encode(Ports)
 }
 
-func RootEndpoint(w http.ResponseWriter, r *http.Request){
-    fmt.Fprintf(w, "Simple REST API for ports handling. Welcome.")
-    fmt.Println("Endpoint Hit: rootEndpoint")
+func RootEndpoint(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Simple REST API for ports handling. Welcome.")
+	fmt.Println("Endpoint Hit: rootEndpoint")
 }
