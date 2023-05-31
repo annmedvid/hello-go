@@ -6,16 +6,18 @@ import (
 	"io"
 	"net/http"
 
+	"example/user/hello-go/utils"
+
 	"github.com/gorilla/mux"
 )
 
 func PortsEndpoint(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Endpoint Hit: portsEndpoint")
+	utils.Logger.Info("Endpoint Hit: portsEndpoint")
 	json.NewEncoder(w).Encode(Ports)
 }
 
 func PortEndpoint(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Endpoint Hit: portEndpoint")
+	utils.Logger.Info("Endpoint Hit: portEndpoint")
 	vars := mux.Vars(r)
 	portId := vars["id"]
 
@@ -23,7 +25,7 @@ func PortEndpoint(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreatePortEndpoint(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Endpoint Hit: createPortEndpoint")
+	utils.Logger.Info("Endpoint Hit: createPortEndpoint")
 	reqBody, _ := io.ReadAll(r.Body)
 	var input PortInput
 	json.Unmarshal(reqBody, &input)
@@ -32,7 +34,7 @@ func CreatePortEndpoint(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdatePortEndpoint(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Endpoint Hit: updatePortEndpoint")
+	utils.Logger.Info("Endpoint Hit: updatePortEndpoint")
 	vars := mux.Vars(r)
 	portId := vars["id"]
 
@@ -45,7 +47,7 @@ func UpdatePortEndpoint(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeletePortEndpoint(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Endpoint Hit: deletePortEndpoint")
+	utils.Logger.Info("Endpoint Hit: deletePortEndpoint")
 	vars := mux.Vars(r)
 	portId := vars["id"]
 
@@ -54,6 +56,6 @@ func DeletePortEndpoint(w http.ResponseWriter, r *http.Request) {
 }
 
 func RootEndpoint(w http.ResponseWriter, r *http.Request) {
+	utils.Logger.Info("Endpoint Hit: rootEndpoint")
 	fmt.Fprintf(w, "Simple REST API for ports handling. Welcome.")
-	fmt.Println("Endpoint Hit: rootEndpoint")
 }

@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"example/user/hello-go/utils"
 	"io"
 	"log"
 	"net/http"
@@ -23,14 +23,15 @@ func handleRequests() {
 }
 
 func applyPortsData() {
-	fmt.Println("Open ports.json")
+	utils.Logger.Info("Openning ports.json")
 	jsonFile, _ := os.Open("ports.json")
 	byteValue, _ := io.ReadAll(jsonFile)
 	json.Unmarshal(byteValue, &Ports)
 }
 
 func main() {
-	fmt.Println("Ports REST API 2.0 - Mux Routers")
+	utils.InitializeLogger()
 	applyPortsData()
+	utils.Logger.Info("Ports REST API 2.0 is running")
 	handleRequests()
 }
